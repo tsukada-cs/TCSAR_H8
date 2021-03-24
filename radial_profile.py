@@ -67,12 +67,6 @@ def plot_radial_profile(winds, sid, cyclone_name, quad="ALL", scatter=True, save
     ax.plot(winds.r, v_mean, c="k", lw=1, zorder=10)
     ax.plot(winds.r, v_mean + v_std, ls="--", lw=0.7, c="k", dashes=(10, 4), zorder=9)
     ax.plot(winds.r, v_mean - v_std, ls="--", lw=0.7, c="k", dashes=(10, 4), zorder=9)
-    ax.set(xlim=(0,500), ylim=(0,80), axisbelow=True)
-    ax.set_title(f"SAR Derived Wind Speed: {sid} / {cyclone_name}\n{winds.time.dt.strftime('%Y-%m-%d %H:%M:%S').item()} UTC")
-    ax.set(xlabel="Distance from center (km)", ylabel="Wind speed (m/s)")
-    ax.spines["top"].set_visible(False)
-    ax.spines["right"].set_visible(False)
-    ax.grid(alpha=0.3)
     ax.text(300, 75, f"Center lon: {round(winds.attrs['lon'],2)}°E", zorder=12)
     ax.text(300, 71, f"Center lat: {round(winds.attrs['lat'],2)}°N", zorder=12)
     ax.text(300, 65, f"Quadrant:   {quad.upper()}", zorder=12)
@@ -83,15 +77,39 @@ def plot_radial_profile(winds, sid, cyclone_name, quad="ALL", scatter=True, save
     ax.plot([r_max, r_max], [0, v_max], c="r", lw=0.5, ls="--", zorder=8)
     ax.plot([0, r_max], [v_max, v_max], c="r", lw=0.5, ls="--", zorder=8)
 
+    ax.set(xlim=(0,500), ylim=(0,80), axisbelow=True)
+    ax.set_title(f"SAR Derived Wind Speed: {sid} / {cyclone_name}\n{winds.time.dt.strftime('%Y-%m-%d %H:%M:%S').item()} UTC")
+    ax.set(xlabel="Distance from center (km)", ylabel="Wind speed (m/s)")
+    ax.spines["top"].set_visible(False)
+    ax.spines["right"].set_visible(False)
+    ax.grid(alpha=0.3)
+
     fig.savefig(savedir + f"/{winds.time.dt.strftime('%Y-%m-%d_%Hh').item()}_{tc_info['sid'].item()}_{tc_info['cyclone_name'].item()}_{quad.upper()}.png", bbox_inches="tight", pad_inches=0.1)
     plt.close()
+
+from mpl_toolkits.axes_grid1 import make_axes_locatable
+def plot_wind_speeds(sar, lon, lat, sid, cyclone_name, radius=0.5, res_km=1):
+    """radius は lonlat で指定"""
+    fig, ax = plt.subplots(figsize=(7,7))
+    divider = make_axes_locatable(ax)
+    cax = divider.append_axes("right", size="3%", pad=0.05)
+
+    x, y = np.argmin(np.abs(sar.lon.values-lon)), np.argmin(np.abs(sar.lat.values-lat))
+
+    ax.imshow(sar.wind_speed.values, extent=(sar.lon.min(), sar.lon.max(), sar.lat.min(), sar.lat.max()), vmin=0, vmax=80, cmap="jet")
+    fig.colorbar(ax.images[0], cax=cax, shrink=0.85, pad=0.005)
+
+    ax.grid(ls="-", c="w", lw=0.5, alpha=0.5)
+    ax.set(xlim=(lon-radius, lon+radius), ylim=(lat-radius, lat+radius))
+    ax.set_title(f"SAR Derived Wind Speed (m/s): {sid} / {cyclone_name}\n{sar.time.dt.strftime('%Y-%m-%d %H:%M:%S').item()} UTC")
+    ax.set(xlabel="Longitude (°E)", ylabel="Latitude (°N)")
 #%%
 max_radius = 500
 res_km = 1
 max_r_px = int(max_radius/res_km)
 
 ddeg = 0.5
-for fname in fnames:
+for fname in fnames[50:]:
     try:
         sar = xr.open_dataset(fname).isel(time=0)
         tc_info = get_tc_info(overview, "fname", os.path.basename(fname))
@@ -110,13 +128,18 @@ for fname in fnames:
         winds["a"].attrs.update({"long_name":"azimuth from East", "standard_name": "azimuth", "units": "degrees"})
         winds["r"].attrs.update({"long_name":"radius", "standard_name": "radius", "units": "km"})
         
-        # Radial Profile を描く
-        # tc_info = get_tc_info(overview, "fname", os.path.basename(fname))
         sid = tc_info['sid'].item()
         name = tc_info['cyclone_name'].item()
+        
+        # SAR海上風を描く
+        plot_wind_speeds(sar, lon, lat, sid, name, radius=1)
+
+        # Radial Profile を描く
         for quad in ["ALL", "NE", "NW", "SE", "SW"]:
             plot_radial_profile(winds, sid, name, quad=quad, scatter=True, savedir=odir)
     except:
         print("Some error has occured: " + fname)
+        import traceback
+        traceback.print_exc()
     break
 # %%
