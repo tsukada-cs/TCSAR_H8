@@ -84,7 +84,7 @@ def plot_radial_profile(winds, sid, cyclone_name, quad="ALL", scatter=True, save
     ax.plot([0, r_max], [v_max, v_max], c="r", lw=0.5, ls="--", zorder=8)
 
     fig.savefig(savedir + f"/{winds.time.dt.strftime('%Y-%m-%d_%Hh').item()}_{tc_info['sid'].item()}_{tc_info['cyclone_name'].item()}_{quad.upper()}.png", bbox_inches="tight", pad_inches=0.1)
-
+    plt.close()
 #%%
 max_radius = 500
 res_km = 1
