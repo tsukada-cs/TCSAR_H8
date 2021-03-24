@@ -92,27 +92,31 @@ max_r_px = int(max_radius/res_km)
 
 ddeg = 0.5
 for fname in fnames:
-    sar = xr.open_dataset(fname).isel(time=0)
-    lon, lat = get_center_by_overview(overview, fname)
-    tc_info = get_tc_info(overview, "fname", os.path.basename(fname))
-    lon, lat = tc_info["lon"].iloc[0], tc_info["lat"].iloc[0]
-    x, y = np.argmin(np.abs(sar.lon.values-lon)), np.argmin(np.abs(sar.lat.values-lat))
-    wind_speed = np.pad(sar.wind_speed.values, max_r_px, mode="constant", constant_values=np.nan)
-    x, y = x+max_r_px, y+max_r_px
-    
-    wind_polar = get_polar(wind_speed, max_r_px, ddeg, x, y)
-    radii = np.arange(0, max_radius, res_km)
-    azimuth = np.arange(0, 360, ddeg)
+    try:
+        sar = xr.open_dataset(fname).isel(time=0)
+        tc_info = get_tc_info(overview, "fname", os.path.basename(fname))
+        lon, lat = tc_info["lon"].iloc[0], tc_info["lat"].iloc[0]
+        x, y = np.argmin(np.abs(sar.lon.values-lon)), np.argmin(np.abs(sar.lat.values-lat))
+        wind_speed = np.pad(sar.wind_speed.values, max_r_px, mode="constant", constant_values=np.nan)
+        x, y = x+max_r_px, y+max_r_px
+        
+        wind_polar = get_polar(wind_speed, max_r_px, ddeg, x, y)
+        radii = np.arange(0, max_radius, res_km)
+        azimuth = np.arange(0, 360, ddeg)
 
-    attrs = sar.wind_speed.attrs
-    attrs.update({"lon":lon, "lat":lat})
-    winds = xr.DataArray(wind_polar, {"a":azimuth, "r":radii, "time": sar.time}, dims=["a", "r"], name="wind_polar", attrs=attrs)
-    winds["a"].attrs.update({"long_name":"azimuth from East", "standard_name": "azimuth", "units": "degrees"})
-    winds["r"].attrs.update({"long_name":"radius", "standard_name": "radius", "units": "km"})
-    
-    # Radial Profile を描く
-    # tc_info = get_tc_info(overview, "fname", os.path.basename(fname))
-    sid = tc_info['sid'].item()
-    name = tc_info['cyclone_name'].item()
-    plot_radial_profile(winds, sid, name, quad="ALL", scatter=True, savedir=odir)
-
+        attrs = sar.wind_speed.attrs
+        attrs.update({"lon":lon, "lat":lat})
+        winds = xr.DataArray(wind_polar, {"a":azimuth, "r":radii, "time": sar.time}, dims=["a", "r"], name="wind_polar", attrs=attrs)
+        winds["a"].attrs.update({"long_name":"azimuth from East", "standard_name": "azimuth", "units": "degrees"})
+        winds["r"].attrs.update({"long_name":"radius", "standard_name": "radius", "units": "km"})
+        
+        # Radial Profile を描く
+        # tc_info = get_tc_info(overview, "fname", os.path.basename(fname))
+        sid = tc_info['sid'].item()
+        name = tc_info['cyclone_name'].item()
+        for quad in ["ALL", "NE", "NW", "SE", "SW"]:
+            plot_radial_profile(winds, sid, name, quad=quad, scatter=True, savedir=odir)
+    except:
+        print("Some error has occured: " + fname)
+    break
+# %%
