@@ -11,8 +11,10 @@ import matplotlib.pyplot as plt
 plt.rcParams["figure.dpi"] = 200
 plt.rcParams["figure.facecolor"] = "white"
 
-odir = "./outputs/radial_profiles"
-os.makedirs(odir, exist_ok=True)
+sar_wind_odir = "./outputs/SAR_wind_speed"
+os.makedirs(sar_wind_odir, exist_ok=True)
+radial_profile_odir = "./outputs/radial_profiles"
+os.makedirs(radial_profile_odir, exist_ok=True)
 #%%
 # データオープン
 data_dir = "data/gridded/"
@@ -84,11 +86,11 @@ def plot_radial_profile(winds, sid, cyclone_name, quad="ALL", scatter=True, save
     ax.spines["right"].set_visible(False)
     ax.grid(alpha=0.3)
 
-    fig.savefig(savedir + f"/{winds.time.dt.strftime('%Y-%m-%d_%Hh').item()}_{tc_info['sid'].item()}_{tc_info['cyclone_name'].item()}_{quad.upper()}.png", bbox_inches="tight", pad_inches=0.1)
+    fig.savefig(savedir + f"/SAR_radial_profile_{winds.time.dt.strftime('%Y-%m-%d_%Hh').item()}_{tc_info['sid'].item()}_{tc_info['cyclone_name'].item()}_{quad.upper()}.png", bbox_inches="tight", pad_inches=0.1)
     plt.close()
 
 from mpl_toolkits.axes_grid1 import make_axes_locatable
-def plot_wind_speeds(sar, lon, lat, sid, cyclone_name, radius=0.5, res_km=1):
+def plot_wind_speeds(sar, lon, lat, sid, cyclone_name, radius=0.5, res_km=1, savedir="."):
     """radius は lonlat で指定"""
     fig, ax = plt.subplots(figsize=(7,7))
     divider = make_axes_locatable(ax)
@@ -103,6 +105,9 @@ def plot_wind_speeds(sar, lon, lat, sid, cyclone_name, radius=0.5, res_km=1):
     ax.set(xlim=(lon-radius, lon+radius), ylim=(lat-radius, lat+radius))
     ax.set_title(f"SAR Derived Wind Speed (m/s): {sid} / {cyclone_name}\n{sar.time.dt.strftime('%Y-%m-%d %H:%M:%S').item()} UTC")
     ax.set(xlabel="Longitude (°E)", ylabel="Latitude (°N)")
+    fig.savefig(savedir + f"/SAR_winds_{winds.time.dt.strftime('%Y-%m-%d_%Hh').item()}_{tc_info['sid'].item()}_{tc_info['cyclone_name'].item()}_{quad.upper()}.png", bbox_inches="tight", pad_inches=0.1)
+    plt.close()
+
 #%%
 max_radius = 500
 res_km = 1
@@ -132,14 +137,14 @@ for fname in fnames[50:]:
         name = tc_info['cyclone_name'].item()
         
         # SAR海上風を描く
-        plot_wind_speeds(sar, lon, lat, sid, name, radius=1)
+        plot_wind_speeds(sar, lon, lat, sid, name, radius=1, savedir=sar_wind_odir)
 
         # Radial Profile を描く
         for quad in ["ALL", "NE", "NW", "SE", "SW"]:
-            plot_radial_profile(winds, sid, name, quad=quad, scatter=True, savedir=odir)
+            plot_radial_profile(winds, sid, name, quad=quad, scatter=True, savedir=radial_profile_odir)
     except:
         print("Some error has occured: " + fname)
         import traceback
         traceback.print_exc()
-    break
+
 # %%
