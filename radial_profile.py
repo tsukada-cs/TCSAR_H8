@@ -143,7 +143,7 @@ for fname in fnames:
 
         # Radial Profile を描く
         for quad in ["ALL", "NE", "NW", "SE", "SW"]:
-            plot_radial_profile(winds, sid, name, quad=quad, scatter=False, savedir=radial_profile_odir)
+            plot_radial_profile(winds, sid, name, quad=quad, scatter=True, savedir=radial_profile_odir)
     except:
         print("Some error has occured: " + fname)
         import traceback
