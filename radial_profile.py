@@ -114,7 +114,7 @@ res_km = 1
 max_r_px = int(max_radius/res_km)
 
 ddeg = 0.5
-for fname in fnames[50:]:
+for fname in fnames:
     try:
         sar = xr.open_dataset(fname).isel(time=0)
         tc_info = get_tc_info(overview, "fname", os.path.basename(fname))
