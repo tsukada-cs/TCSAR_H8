@@ -124,6 +124,7 @@ for fname in fnames[50:]:
         x, y = x+max_r_px, y+max_r_px
         
         wind_polar = get_polar(wind_speed, max_r_px, ddeg, x, y)
+        wind_polar = wind_polar[::-1, :]
         radii = np.arange(0, max_radius, res_km)
         azimuth = np.arange(0, 360, ddeg)
 
