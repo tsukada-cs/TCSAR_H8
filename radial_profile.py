@@ -86,7 +86,7 @@ def plot_radial_profile(winds, sid, cyclone_name, quad="ALL", scatter=True, save
     ax.spines["right"].set_visible(False)
     ax.grid(alpha=0.3)
 
-    fig.savefig(savedir + f"/SAR_radial_profile_{winds.time.dt.strftime('%Y-%m-%d_%Hh').item()}_{tc_info['sid'].item()}_{tc_info['cyclone_name'].item()}_{quad.upper()}.png", bbox_inches="tight", pad_inches=0.1)
+    fig.savefig(savedir + f"/SAR_radial_profile_{winds.time.dt.strftime('%Y-%m-%d_%Hh').item()}_{sid}_{cyclone_name}_{quad.upper()}.png", bbox_inches="tight", pad_inches=0.1)
     plt.close()
 
 from mpl_toolkits.axes_grid1 import make_axes_locatable
@@ -105,7 +105,7 @@ def plot_wind_speeds(sar, lon, lat, sid, cyclone_name, radius=0.5, res_km=1, sav
     ax.set(xlim=(lon-radius, lon+radius), ylim=(lat-radius, lat+radius))
     ax.set_title(f"SAR Derived Wind Speed (m/s): {sid} / {cyclone_name}\n{sar.time.dt.strftime('%Y-%m-%d %H:%M:%S').item()} UTC")
     ax.set(xlabel="Longitude (°E)", ylabel="Latitude (°N)")
-    fig.savefig(savedir + f"/SAR_winds_{winds.time.dt.strftime('%Y-%m-%d_%Hh').item()}_{tc_info['sid'].item()}_{tc_info['cyclone_name'].item()}_{quad.upper()}.png", bbox_inches="tight", pad_inches=0.1)
+    fig.savefig(savedir + f"/SAR_winds_{winds.time.dt.strftime('%Y-%m-%d_%Hh').item()}_{sid}_{cyclone_name}.png", bbox_inches="tight", pad_inches=0.1)
     plt.close()
 
 #%%
