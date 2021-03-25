@@ -148,6 +148,5 @@ for fname in fnames:
         print("Some error has occured: " + fname)
         import traceback
         traceback.print_exc()
-    break
 
 # %%
