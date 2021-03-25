@@ -134,8 +134,8 @@ for fname in fnames:
         winds["a"].attrs.update({"long_name":"azimuth from East", "standard_name": "azimuth", "units": "degrees"})
         winds["r"].attrs.update({"long_name":"radius", "standard_name": "radius", "units": "km"})
         
-        sid = tc_info['sid'].item()
-        name = tc_info['cyclone_name'].item()
+        sid = tc_info['sid']
+        name = tc_info['cyclone_name']
         
         # SAR海上風を描く
         plot_wind_speeds(sar, lon, lat, sid, name, radius=1, savedir=sar_wind_odir)
