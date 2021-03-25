@@ -99,6 +99,7 @@ def plot_wind_speeds(sar, lon, lat, sid, cyclone_name, radius=0.5, res_km=1, sav
     x, y = np.argmin(np.abs(sar.lon.values-lon)), np.argmin(np.abs(sar.lat.values-lat))
 
     ax.imshow(sar.wind_speed.values, extent=(sar.lon.min(), sar.lon.max(), sar.lat.min(), sar.lat.max()), vmin=0, vmax=80, cmap="jet")
+    ax.scatter(lon, lat, c="k", marker="+", alpha=0.5)
     fig.colorbar(ax.images[0], cax=cax, shrink=0.85, pad=0.005)
 
     ax.grid(ls="-", c="w", lw=0.5, alpha=0.5)
@@ -142,11 +143,12 @@ for fname in fnames:
         plot_wind_speeds(sar, lon, lat, sid, name, radius=1, savedir=sar_wind_odir)
 
         # Radial Profile を描く
-        for quad in ["ALL", "NE", "NW", "SE", "SW"]:
-            plot_radial_profile(winds, sid, name, quad=quad, scatter=True, savedir=radial_profile_odir)
+        # for quad in ["ALL", "NE", "NW", "SE", "SW"]:
+        #     plot_radial_profile(winds, sid, name, quad=quad, scatter=True, savedir=radial_profile_odir)
     except:
         print("Some error has occured: " + fname)
         import traceback
         traceback.print_exc()
+    break
 
 # %%
