@@ -25,7 +25,7 @@ oname = "data/cyclobs_overview/overview.csv"
 overview = pd.read_csv(oname, parse_dates=["time"])
 
 def get_tc_info(overview, key, value):
-    return overview[overview[key] == value]
+    return overview[overview[key] == value].iloc[0]
 
 def get_circle_label(width, height):
     yy, xx = np.mgrid[:height, :width]
@@ -118,7 +118,7 @@ for fname in fnames[50:]:
     try:
         sar = xr.open_dataset(fname).isel(time=0)
         tc_info = get_tc_info(overview, "fname", os.path.basename(fname))
-        lon, lat = tc_info["lon"].iloc[0], tc_info["lat"].iloc[0]
+        lon, lat = tc_info["lon"], tc_info["lat"]
         x, y = np.argmin(np.abs(sar.lon.values-lon)), np.argmin(np.abs(sar.lat.values-lat))
         wind_speed = np.pad(sar.wind_speed.values, max_r_px, mode="constant", constant_values=np.nan)
         x, y = x+max_r_px, y+max_r_px
