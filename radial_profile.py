@@ -86,8 +86,8 @@ def plot_radial_profile(winds, sid, cyclone_name, quad="ALL", scatter=True, save
     ax.spines["right"].set_visible(False)
     ax.grid(alpha=0.3)
 
-    # fig.savefig(savedir + f"/SAR_radial_profile_{winds.time.dt.strftime('%Y-%m-%d_%Hh').item()}_{sid}_{cyclone_name}_{quad.upper()}.png", bbox_inches="tight", pad_inches=0.1)
-    # plt.close()
+    fig.savefig(savedir + f"/SAR_radial_profile_{winds.time.dt.strftime('%Y-%m-%d_%Hh').item()}_{sid}_{cyclone_name}_{quad.upper()}.png", bbox_inches="tight", pad_inches=0.1)
+    plt.close()
 
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 def plot_wind_speeds(sar, lon, lat, sid, cyclone_name, radius=0.5, res_km=1, savedir="."):
