@@ -43,13 +43,13 @@ def get_polar(img, radius, deg, px, py):
 def get_4quad_winds(winds):
     winds_NE = winds.sel(a=slice(0,90)).isel(a=slice(0,-1))
     winds_NW = winds.sel(a=slice(90,180)).isel(a=slice(0,-1))
-    winds_SE = winds.sel(a=slice(180,270)).isel(a=slice(0,-1))
-    winds_SW = winds.sel(a=slice(270,360))
-    return winds_NE, winds_NW, winds_SE, winds_SW
+    winds_SW = winds.sel(a=slice(180,270)).isel(a=slice(0,-1))
+    winds_SE = winds.sel(a=slice(270,360))
+    return winds_NE, winds_NW, winds_SW, winds_SE
 
 def plot_radial_profile(winds, sid, cyclone_name, quad="ALL", scatter=True, savedir="./"):
-    winds_NE, winds_NW, winds_SE, winds_SW = get_4quad_winds(winds)
-    winds_map = {"ALL": winds, "NE": winds_NE, "NW": winds_NW, "SE": winds_SE, "SW": winds_SW}
+    winds_NE, winds_NW, winds_SW, winds_SE = get_4quad_winds(winds)
+    winds_map = {"ALL": winds, "NE": winds_NE, "NW": winds_NW, "SW": winds_SW, "SE": winds_SE}
 
     winds = winds_map[quad.upper()]
 
@@ -86,8 +86,8 @@ def plot_radial_profile(winds, sid, cyclone_name, quad="ALL", scatter=True, save
     ax.spines["right"].set_visible(False)
     ax.grid(alpha=0.3)
 
-    fig.savefig(savedir + f"/SAR_radial_profile_{winds.time.dt.strftime('%Y-%m-%d_%Hh').item()}_{sid}_{cyclone_name}_{quad.upper()}.png", bbox_inches="tight", pad_inches=0.1)
-    plt.close()
+    # fig.savefig(savedir + f"/SAR_radial_profile_{winds.time.dt.strftime('%Y-%m-%d_%Hh').item()}_{sid}_{cyclone_name}_{quad.upper()}.png", bbox_inches="tight", pad_inches=0.1)
+    # plt.close()
 
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 def plot_wind_speeds(sar, lon, lat, sid, cyclone_name, radius=0.5, res_km=1, savedir="."):
@@ -115,6 +115,7 @@ max_r_px = int(max_radius/res_km)
 
 ddeg = 0.5
 for fname in fnames:
+    # LAN: fname = 'data/gridded/rs2--owi-cm-20171021t092057-20171021t092213-00003-BDC95_ll_gd.nc'
     try:
         sar = xr.open_dataset(fname).isel(time=0)
         tc_info = get_tc_info(overview, "fname", os.path.basename(fname))
@@ -142,10 +143,11 @@ for fname in fnames:
 
         # Radial Profile を描く
         for quad in ["ALL", "NE", "NW", "SE", "SW"]:
-            plot_radial_profile(winds, sid, name, quad=quad, scatter=True, savedir=radial_profile_odir)
+            plot_radial_profile(winds, sid, name, quad=quad, scatter=False, savedir=radial_profile_odir)
     except:
         print("Some error has occured: " + fname)
         import traceback
         traceback.print_exc()
+    break
 
 # %%
