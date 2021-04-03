@@ -115,12 +115,12 @@ res_km = 1
 max_r_px = int(max_radius/res_km)
 
 ddeg = 0.5
-for fname in fnames:
+for fname, lon, lat, sid, cyclone_name in zip(overview["fname"], overview["lon"], overview["lat"], overview["sid"], overview["cyclone_name"]):
     # LAN: fname = 'data/gridded/rs2--owi-cm-20171021t092057-20171021t092213-00003-BDC95_ll_gd.nc'
+
     try:
+        fname = data_dir + "/" + fname
         sar = xr.open_dataset(fname).isel(time=0)
-        tc_info = get_tc_info(overview, "fname", os.path.basename(fname))
-        lon, lat = tc_info["lon"], tc_info["lat"]
         x, y = np.argmin(np.abs(sar.lon.values-lon)), np.argmin(np.abs(sar.lat.values-lat))
         wind_speed = np.pad(sar.wind_speed.values, max_r_px, mode="constant", constant_values=np.nan)
         x, y = x+max_r_px, y+max_r_px
@@ -136,11 +136,8 @@ for fname in fnames:
         winds["a"].attrs.update({"long_name":"azimuth from East", "standard_name": "azimuth", "units": "degrees"})
         winds["r"].attrs.update({"long_name":"radius", "standard_name": "radius", "units": "km"})
         
-        sid = tc_info['sid']
-        name = tc_info['cyclone_name']
-        
         # SAR海上風を描く
-        plot_wind_speeds(sar, lon, lat, sid, name, radius=1, savedir=sar_wind_odir)
+        # plot_wind_speeds(sar, lon, lat, sid, name, radius=1, savedir=sar_wind_odir)
 
         # Radial Profile を描く
         # for quad in ["ALL", "NE", "NW", "SE", "SW"]:
